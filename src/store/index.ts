@@ -1,5 +1,6 @@
 import {configureStore} from "@reduxjs/toolkit";
 import {gitHubApi} from "./githib/github.api";
+import {setupListeners} from "@reduxjs/toolkit/query";
 
 
 export const store = configureStore({
@@ -9,3 +10,5 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(gitHubApi.middleware)
 })
+
+setupListeners(store.dispatch)
