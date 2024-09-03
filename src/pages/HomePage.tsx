@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {useSearchUsersQuery} from "../store/githib/github.api";
+import {useLazyGetUserReposQuery, useSearchUsersQuery} from "../store/githib/github.api";
 import {useDebounce} from "../hooks/debounce";
+import {RepoCard} from "../componenets/RepoCard";
 
 const HomePage = () => {
 
@@ -11,6 +12,13 @@ const HomePage = () => {
         skip: debounced.length < 3,
         refetchOnFocus: true
     });
+
+    const [fetchRepos, {isLoading: areReposLoading, data: repos}] = useLazyGetUserReposQuery()
+
+    const clickHandler = (username: string) => {
+        fetchRepos(username);
+        setDropdownOpen(false)
+    }
 
     useEffect(() => {
         setDropdownOpen(debounced.length > 3 && data?.length! > 0)
@@ -34,13 +42,18 @@ const HomePage = () => {
                         {data?.map(user => (
                             <li key={user.id}
                                 className="py-2 px-4 hover:bg-gray-500
-                            hover:text-white transition-colors duration-200 cursor-pointer"
+                                            hover:text-white transition-colors duration-200 cursor-pointer"
+                                onClick={() => clickHandler(user.login)}
                             >
                                 {user.login}
                             </li>
                         ))}
 
                     </ul>}
+                <div className="container">
+                    {areReposLoading && <p className="text-center">Repository are loading</p>}
+                    {repos?.map(repo => <RepoCard repo={repo} key={repo.id} />)}
+                </div>
             </div>
         </div>
     );
